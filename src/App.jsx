@@ -17,7 +17,7 @@ const STRATEGIES = {
 
 const STRATEGY_META = {
   "Balanced": {
-    icon: "⚖️",
+    icon: "âš–ï¸",
     color: "#06b6d4",
     gradient: "linear-gradient(135deg,#06b6d4,#3b82f6)",
     tagline: "Smart equilibrium across all KPIs",
@@ -26,7 +26,7 @@ const STRATEGY_META = {
     bars: [{label:"ROAS Weight",pct:50,color:"#06b6d4"},{label:"New Customers",pct:30,color:"#3b82f6"},{label:"Baseline",pct:20,color:"#8b5cf6"}],
   },
   "Aggressive Growth": {
-    icon: "🚀",
+    icon: "ðŸš€",
     color: "#f97316",
     gradient: "linear-gradient(135deg,#f97316,#ef4444)",
     tagline: "Maximise new customer acquisition",
@@ -35,10 +35,10 @@ const STRATEGY_META = {
     bars: [{label:"ROAS Weight",pct:20,color:"#f97316"},{label:"New Customers",pct:60,color:"#ef4444"},{label:"Baseline",pct:20,color:"#f59e0b"}],
   },
   "Max ROAS": {
-    icon: "💰",
+    icon: "ðŸ’°",
     color: "#f59e0b",
     gradient: "linear-gradient(135deg,#f59e0b,#ef4444)",
-    tagline: "Pure efficiency — squeeze every rupee",
+    tagline: "Pure efficiency â€” squeeze every rupee",
     desc: "Channels every rupee into the highest-returning placements. Penalises diminishing-return channels aggressively. Best for lean budgets.",
     tags: ["Max Efficiency","Conservative","Profitability"],
     bars: [{label:"ROAS Weight",pct:80,color:"#f59e0b"},{label:"New Customers",pct:10,color:"#ef4444"},{label:"Baseline",pct:10,color:"#22c55e"}],
@@ -46,11 +46,11 @@ const STRATEGY_META = {
 };
 
 function fmt(n) {
-  if (!n || isNaN(n)) return "₹0";
-  if (n >= 10000000) return `₹${(n/10000000).toFixed(1)}Cr`;
-  if (n >= 100000) return `₹${(n/100000).toFixed(1)}L`;
-  if (n >= 1000) return `₹${(n/1000).toFixed(0)}K`;
-  return `₹${Math.round(n)}`;
+  if (!n || isNaN(n)) return "â‚¹0";
+  if (n >= 10000000) return `â‚¹${(n/10000000).toFixed(1)}Cr`;
+  if (n >= 100000) return `â‚¹${(n/100000).toFixed(1)}L`;
+  if (n >= 1000) return `â‚¹${(n/1000).toFixed(0)}K`;
+  return `â‚¹${Math.round(n)}`;
 }
 
 function fmtN(n) {
@@ -243,7 +243,7 @@ export default function App() {
 
   if (phase === "loading" || phase === "analyzing") {
     const pct = phase==="analyzing" ? 100 : progress;
-    const msg = phase==="analyzing" ? `Computing insights across ${fmtN(rowCount)} records…` : `Fetching page data… ${rowCount.toLocaleString()} rows loaded`;
+    const msg = phase==="analyzing" ? `Computing insights across ${fmtN(rowCount)} recordsâ€¦` : `Fetching page dataâ€¦ ${rowCount.toLocaleString()} rows loaded`;
     return (
       <div className="loader-container text-main font-sans">
         <div className="loader-bg"></div>
@@ -326,7 +326,7 @@ export default function App() {
       {/* KPI Strip */}
       <div className="kpi-grid">
         <div className="kpi-card animate-fade-in" style={{ animationDelay: "0s" }}>
-          <div className="kpi-label font-mono">Monthly Budget (₹)</div>
+          <div className="kpi-label font-mono">Monthly Budget (â‚¹)</div>
           <input 
             type="number" 
             value={totalBudget}
@@ -356,7 +356,7 @@ export default function App() {
           <div className="kpi-sub font-mono" style={{ position:"relative", zIndex:1, color: STRATEGY_META[strategy].color }}>
             {STRATEGY_META[strategy].tagline}
           </div>
-          <div style={{ position:"absolute", right:"16px", top:"50%", transform:"translateY(-50%)", zIndex:1, opacity:0.5, fontSize:"18px" }}>›</div>
+          <div style={{ position:"absolute", right:"16px", top:"50%", transform:"translateY(-50%)", zIndex:1, opacity:0.5, fontSize:"18px" }}>â€º</div>
         </div>
 
         {/* vs Optimal */}
@@ -367,7 +367,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── Strategy Picker Modal ───────────────────────── */}
+      {/* â”€â”€ Strategy Picker Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {strategyOpen && (
         <div className="strategy-overlay" onClick={()=>setStrategyOpen(false)}>
           <div className="strategy-modal" onClick={e=>e.stopPropagation()}>
@@ -376,7 +376,7 @@ export default function App() {
                 <div className="strategy-modal-title">Choose AI Strategy</div>
                 <div className="strategy-modal-sub">Select an optimization goal for budget allocation</div>
               </div>
-              <button className="strategy-close" onClick={()=>setStrategyOpen(false)}>✕</button>
+              <button className="strategy-close" onClick={()=>setStrategyOpen(false)}>âœ•</button>
             </div>
             <div className="strategy-cards-grid">
               {Object.keys(STRATEGIES).map(s => {
@@ -412,7 +412,7 @@ export default function App() {
                         <span key={t} className="soc-tag" style={{ borderColor: m.color+"55", color: active?m.color:"var(--text-muted)" }}>{t}</span>
                       ))}
                     </div>
-                    {active && <div className="soc-check">✓ Active</div>}
+                    {active && <div className="soc-check">âœ“ Active</div>}
                   </div>
                 );
               })}
@@ -427,7 +427,7 @@ export default function App() {
           <div className="grid-2-col">
             {/* Sliders */}
             <div className="glass-card">
-              <div className="card-header">
+<div className="card-header">
                 <div>
                   <div className="card-title font-mono">Budget Allocation</div>
                   <div className="card-subtitle">Drag Sliders &middot; Total = 100%</div>
@@ -509,7 +509,7 @@ export default function App() {
 
               {/* Insights box */}
               <div className="glass-card" style={{ borderLeft: "4px solid var(--text-accent)" }}>
-                <div className="card-title font-mono" style={{ color:"var(--text-accent)", marginBottom:"12px" }}>⚡ AI Recommendation</div>
+                <div className="card-title font-mono" style={{ color:"var(--text-accent)", marginBottom:"12px" }}>âš¡ AI Recommendation</div>
                 <div style={{ fontSize:"14px", color:"var(--text-muted)", lineHeight:"1.8" }}>
                   Top channels: <span style={{color:"#fff", fontWeight:"500"}}>{sortedByScore.slice(0,3).map(c=>c.channel).join(", ")}</span>.
                   {dimChannels.length > 0 && <> Diminishing returns in <span style={{color:"#ef4444", fontWeight:"500"}}>{dimChannels.map(c=>c.channel).join(", ")}</span> &mdash; avoid over-indexing.</>}
@@ -519,8 +519,7 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {/* ANALYSIS */}
+{/* ANALYSIS */}
         {activeTab==="analysis" && (
           <div className="grid-2-col">
             <div className="glass-card">
@@ -613,8 +612,7 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {/* TRENDS */}
+{/* TRENDS */}
         {activeTab==="trends" && (
           <div style={{ display:"grid", gridTemplateColumns:"1fr", gap:"24px" }}>
             <div className="glass-card">
@@ -623,8 +621,8 @@ export default function App() {
               <ResponsiveContainer width="100%" height={350}>
                 <LineChart data={monthlyTrend} margin={{top:10, right:30, left:20, bottom:10}}>
                   <XAxis dataKey="month" tick={{fill:"var(--text-muted)",fontSize:11}} tickFormatter={v=>v.slice(2)} axisLine={{stroke:"var(--border-color)"}} tickLine={{stroke:"var(--border-color)"}}/>
-                  <YAxis tick={{fill:"var(--text-muted)",fontSize:11}} tickFormatter={v=>`₹${v}K`} axisLine={{stroke:"var(--border-color)"}} tickLine={{stroke:"var(--border-color)"}}/>
-                  <Tooltip contentStyle={{background:"var(--bg-card)",border:"1px solid var(--border-color)",borderRadius:"8px",fontSize:"12px",backdropFilter:"blur(10px)"}} formatter={(v,n)=>[`₹${v}K`,n]}/>
+                  <YAxis tick={{fill:"var(--text-muted)",fontSize:11}} tickFormatter={v=>`â‚¹${v}K`} axisLine={{stroke:"var(--border-color)"}} tickLine={{stroke:"var(--border-color)"}}/>
+                  <Tooltip contentStyle={{background:"var(--bg-card)",border:"1px solid var(--border-color)",borderRadius:"8px",fontSize:"12px",backdropFilter:"blur(10px)"}} formatter={(v,n)=>[`â‚¹${v}K`,n]}/>
                   <Legend wrapperStyle={{fontSize:"12px",color:"var(--text-main)", paddingTop:"20px"}}/>
                   <Line type="monotone" dataKey="revenue" stroke="url(#colorRevenue)" strokeWidth={3} dot={false} activeDot={{r:6, fill:"#f59e0b", strokeWidth:0}} name="Revenue"/>
                   <Line type="monotone" dataKey="spend" stroke="#ef4444" strokeWidth={2} dot={false} name="Spend" strokeDasharray="5 5"/>
@@ -656,8 +654,8 @@ export default function App() {
               {[
                 { title:"Non-Linear Returns Detected", body:`${dimChannels.map(c=>c.channel).join(", ")} show measurable diminishing returns. Excess spend here generates poor marginal ROAS. Budget reallocation away from these channels is the single highest-leverage action.` },
                 { title:"Best Channels by Efficiency", body:`${sortedByScore.slice(0,3).map(c=>`${c.channel} (${c.totalRoas.toFixed(1)}x)`).join(", ")} consistently generate the most revenue per rupee. Increase allocation here first.` },
-                { title:"Day-of-Week Timing", body:`All channels have a best-performing day. Concentrating spend on high-ROAS days can lift effective ROAS by 8–15% without increasing total budget.` },
-                { title:"Data-Driven vs Gut-Feel", body:`Optimal allocation projects ${fmt(optRev)} monthly revenue at ${(totalBudget > 0 ? optRev/totalBudget : 0).toFixed(2)}x ROAS — moving from gut-feel to data is the highest ROI decision.` },
+                { title:"Day-of-Week Timing", body:`All channels have a best-performing day. Concentrating spend on high-ROAS days can lift effective ROAS by 8â€“15% without increasing total budget.` },
+                { title:"Data-Driven vs Gut-Feel", body:`Optimal allocation projects ${fmt(optRev)} monthly revenue at ${(totalBudget > 0 ? optRev/totalBudget : 0).toFixed(2)}x ROAS â€” moving from gut-feel to data is the highest ROI decision.` },
               ].map((f,i)=>(
                 <div key={i} className="glass-card" style={{ padding:"24px", background:"rgba(255,255,255,0.02)", border:"1px solid rgba(255,255,255,0.05)" }}>
                   <div style={{ fontSize:"14px", fontWeight:"600", color:"var(--text-accent)", marginBottom:"12px", display:"flex", alignItems:"center", gap:"8px" }}>
@@ -675,6 +673,19 @@ export default function App() {
       <footer className="app-footer">
         {fmtN(allData.length)} data points &middot; Real API &middot; 3-Year Analysis
       </footer>
+
+      {/* EXACT REVENUE BADGE - remove after getting the number */}
+      <div style={{
+        position:"fixed", bottom:"24px", right:"24px",
+        background:"#f59e0b", color:"#000", padding:"12px 20px",
+        borderRadius:"8px", fontFamily:"monospace", fontSize:"13px",
+        fontWeight:"700", zIndex:9999, boxShadow:"0 4px 20px rgba(245,158,11,0.5)",
+        lineHeight:"1.6", textAlign:"center"
+      }}>
+        <div style={{fontSize:"9px", letterSpacing:"0.1em", marginBottom:"2px"}}>EXACT PROJECTED REVENUE</div>
+        <div style={{fontSize:"18px"}}>{projRev.toFixed(2)}</div>
+        <div style={{fontSize:"9px", marginTop:"2px", opacity:0.7}}>copy this â†’ form</div>
+      </div>
+
     </div>
   );
-}
