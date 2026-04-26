@@ -15,6 +15,36 @@ const STRATEGIES = {
   "Max ROAS": { roas: 0.8, nc: 0.1, base: 0.1, dimPenalty: 0.5 },
 };
 
+const STRATEGY_META = {
+  "Balanced": {
+    icon: "⚖️",
+    color: "#06b6d4",
+    gradient: "linear-gradient(135deg,#06b6d4,#3b82f6)",
+    tagline: "Smart equilibrium across all KPIs",
+    desc: "Distributes budget intelligently by blending return on ad spend with new customer acquisition. Best for steady, predictable growth.",
+    tags: ["Steady Growth","Low Risk","Recommended"],
+    bars: [{label:"ROAS Weight",pct:50,color:"#06b6d4"},{label:"New Customers",pct:30,color:"#3b82f6"},{label:"Baseline",pct:20,color:"#8b5cf6"}],
+  },
+  "Aggressive Growth": {
+    icon: "🚀",
+    color: "#f97316",
+    gradient: "linear-gradient(135deg,#f97316,#ef4444)",
+    tagline: "Maximise new customer acquisition",
+    desc: "Prioritises channels that bring in the most first-time buyers. Accepts lower short-term ROAS in exchange for long-term LTV gains.",
+    tags: ["High Acquisition","High Risk","Scale Mode"],
+    bars: [{label:"ROAS Weight",pct:20,color:"#f97316"},{label:"New Customers",pct:60,color:"#ef4444"},{label:"Baseline",pct:20,color:"#f59e0b"}],
+  },
+  "Max ROAS": {
+    icon: "💰",
+    color: "#f59e0b",
+    gradient: "linear-gradient(135deg,#f59e0b,#ef4444)",
+    tagline: "Pure efficiency — squeeze every rupee",
+    desc: "Channels every rupee into the highest-returning placements. Penalises diminishing-return channels aggressively. Best for lean budgets.",
+    tags: ["Max Efficiency","Conservative","Profitability"],
+    bars: [{label:"ROAS Weight",pct:80,color:"#f59e0b"},{label:"New Customers",pct:10,color:"#ef4444"},{label:"Baseline",pct:10,color:"#22c55e"}],
+  },
+};
+
 function fmt(n) {
   if (!n || isNaN(n)) return "₹0";
   if (n >= 10000000) return `₹${(n/10000000).toFixed(1)}Cr`;
@@ -119,27 +149,51 @@ export default function App() {
     return base;
   });
   const [activeTab, setActiveTab] = useState("optimizer");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [strategyOpen, setStrategyOpen] = useState(false);
   const abortRef = useRef(false);
 
   useEffect(() => {
     abortRef.current = false;
     (async () => {
-      const rows = [];
-      let page = 1, pages = 110;
-      while (page <= pages && !abortRef.current) {
-        try {
-          const res = await fetch(`https://mosaicfellowship.in/api/data/marketing/daily?page=${page}&limit=100`);
-          const json = await res.json();
-          if (json.pagination) pages = json.pagination.total_pages;
-          if (json.data) rows.push(...json.data);
-          setProgress(Math.round((page/pages)*100));
-          setTotalPages(pages);
-          setRowCount(rows.length);
-          page++;
-          await new Promise(r => setTimeout(r, 8));
-        } catch { page++; }
+      // Step 1: fetch page 1 to discover total_pages
+      let pages = 110;
+      try {
+        const first = await fetch(`https://mosaicfellowship.in/api/data/marketing/daily?page=1&limit=100`);
+        const firstJson = await first.json();
+        if (firstJson.pagination) pages = firstJson.pagination.total_pages;
+        setTotalPages(pages);
+        // seed rows with page 1 data
+        var seedRows = firstJson.data || [];
+      } catch { var seedRows = []; }
+
+      if (abortRef.current) return;
+
+      // Step 2: fetch remaining pages in parallel batches of 10
+      const BATCH = 10;
+      const allRows = [...seedRows];
+      let fetched = 1;
+      setRowCount(allRows.length);
+      setProgress(Math.round((1 / pages) * 100));
+
+      for (let start = 2; start <= pages && !abortRef.current; start += BATCH) {
+        const end = Math.min(start + BATCH - 1, pages);
+        const batch = [];
+        for (let p = start; p <= end; p++) {
+          batch.push(
+            fetch(`https://mosaicfellowship.in/api/data/marketing/daily?page=${p}&limit=100`)
+              .then(r => r.json())
+              .catch(() => ({ data: [] }))
+          );
+        }
+        const results = await Promise.all(batch);
+        results.forEach(json => { if (json.data) allRows.push(...json.data); });
+        fetched += results.length;
+        setRowCount(allRows.length);
+        setProgress(Math.round((fetched / pages) * 100));
       }
-      if (!abortRef.current) { setAllData(rows); setPhase("analyzing"); }
+
+      if (!abortRef.current) { setAllData(allRows); setPhase("analyzing"); }
     })();
     return () => { abortRef.current = true; };
   }, []);
@@ -236,18 +290,38 @@ export default function App() {
           <div className="header-subtitle font-mono">Overview</div>
           <div className="header-title text-gradient">MARKETING MIX OPTIMIZER</div>
         </div>
-        <div className="tabs-container">
+        {/* Desktop tabs */}
+        <div className="tabs-container desktop-tabs">
           {["optimizer","analysis","trends"].map(tab=>(
             <button key={tab} className={`tab-button ${activeTab===tab ? "active" : ""}`} onClick={()=>setActiveTab(tab)}>
               {tab}
             </button>
           ))}
         </div>
-        <div className="text-muted font-mono" style={{ textAlign:"right", fontSize:"11px" }}>
-          <div className="text-gradient" style={{ fontWeight:"bold", marginBottom:"4px", fontSize:"14px" }}>{fmtN(allData.length)} records</div>
-          <div>3 years &middot; 10 channels &middot; {totalPages} pages</div>
+        <div style={{ display:"flex", alignItems:"center", gap:"16px" }}>
+          <div className="text-muted font-mono header-meta" style={{ textAlign:"right", fontSize:"11px" }}>
+            <div className="text-gradient" style={{ fontWeight:"bold", marginBottom:"4px", fontSize:"14px" }}>{fmtN(allData.length)} records</div>
+            <div>3 yrs &middot; 10 ch &middot; {totalPages} pg</div>
+          </div>
+          {/* Mobile hamburger */}
+          <button className="hamburger-btn" onClick={()=>setMenuOpen(o=>!o)} aria-label="Menu">
+            <span className={`ham-line ${menuOpen?"open":""}`}/>
+            <span className={`ham-line ${menuOpen?"open":""}`}/>
+            <span className={`ham-line ${menuOpen?"open":""}`}/>
+          </button>
         </div>
       </header>
+      {/* Mobile tab drawer */}
+      {menuOpen && (
+        <div className="mobile-menu">
+          {["optimizer","analysis","trends"].map(tab=>(
+            <button key={tab} className={`mobile-tab-btn ${activeTab===tab?"active":""}`}
+              onClick={()=>{ setActiveTab(tab); setMenuOpen(false); }}>
+              {tab.charAt(0).toUpperCase()+tab.slice(1)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* KPI Strip */}
       <div className="kpi-grid">
@@ -262,30 +336,90 @@ export default function App() {
           />
           <div className="kpi-sub font-mono">Customizable Budget</div>
         </div>
-        {[
-          { label:"Projected Revenue", val:fmt(projRev), sub:`${projRoas.toFixed(2)}x ROAS`, gold:true },
-          { label:"AI Strategy", isDropdown:true },
-          { label:"vs Optimal", val:fmt(optRev), sub:`${totalBudget > 0 ? (optRev/totalBudget).toFixed(2) : 0}x optimal ROAS` },
-        ].map((k,i)=>(
-          <div key={i+1} className="kpi-card animate-fade-in" style={{ animationDelay: `${(i+1) * 0.1}s` }}>
-            <div className="kpi-label font-mono">{k.label}</div>
-            {k.isDropdown ? (
-              <select 
-                value={strategy}
-                onChange={e => setStrategy(e.target.value)}
-                className="kpi-value select-unstyled"
-                style={{ width: "100%", background: "transparent", border: "none", outline: "none", fontFamily: "var(--font-sans)", color: "var(--text-main)", padding: 0, appearance: "none", cursor: "pointer" }}
-              >
-                {Object.keys(STRATEGIES).map(s => <option key={s} value={s} style={{background: "var(--bg-main)", color: "var(--text-main)", fontSize: "16px"}}>{s}</option>)}
-              </select>
-            ) : (
-              <div className={`kpi-value ${k.gold ? "gold" : ""}`}>{k.val}</div>
-            )}
-            <div className="kpi-sub font-mono">{k.isDropdown ? "Optimization Goal" : k.sub}</div>
-            {k.isDropdown && <div style={{ position: "absolute", right: "24px", top: "45%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--text-accent)" }}>▼</div>}
+        {/* Projected Revenue */}
+        <div className="kpi-card animate-fade-in" style={{ animationDelay:"0.1s" }}>
+          <div className="kpi-label font-mono">Projected Revenue</div>
+          <div className="kpi-value gold">{fmt(projRev)}</div>
+          <div className="kpi-sub font-mono">{projRoas.toFixed(2)}x ROAS</div>
+        </div>
+
+        {/* AI Strategy picker card */}
+        <div className="kpi-card strategy-trigger animate-fade-in" style={{ animationDelay:"0.2s", cursor:"pointer", position:"relative", overflow:"hidden" }}
+          onClick={()=>setStrategyOpen(true)}>
+          {/* Animated background glow */}
+          <div className="strategy-card-glow" style={{ background: STRATEGY_META[strategy].gradient }}/>
+          <div className="kpi-label font-mono" style={{ position:"relative", zIndex:1 }}>AI Strategy</div>
+          <div style={{ position:"relative", zIndex:1, display:"flex", alignItems:"center", gap:"10px", margin:"6px 0 8px" }}>
+            <span style={{ fontSize:"28px", lineHeight:1 }}>{STRATEGY_META[strategy].icon}</span>
+            <span style={{ fontSize:"18px", fontWeight:700, color:"var(--text-main)", lineHeight:1.2 }}>{strategy}</span>
           </div>
-        ))}
+          <div className="kpi-sub font-mono" style={{ position:"relative", zIndex:1, color: STRATEGY_META[strategy].color }}>
+            {STRATEGY_META[strategy].tagline}
+          </div>
+          <div style={{ position:"absolute", right:"16px", top:"50%", transform:"translateY(-50%)", zIndex:1, opacity:0.5, fontSize:"18px" }}>›</div>
+        </div>
+
+        {/* vs Optimal */}
+        <div className="kpi-card animate-fade-in" style={{ animationDelay:"0.3s" }}>
+          <div className="kpi-label font-mono">vs Optimal</div>
+          <div className="kpi-value">{fmt(optRev)}</div>
+          <div className="kpi-sub font-mono">{totalBudget > 0 ? (optRev/totalBudget).toFixed(2) : 0}x optimal ROAS</div>
+        </div>
       </div>
+
+      {/* ── Strategy Picker Modal ───────────────────────── */}
+      {strategyOpen && (
+        <div className="strategy-overlay" onClick={()=>setStrategyOpen(false)}>
+          <div className="strategy-modal" onClick={e=>e.stopPropagation()}>
+            <div className="strategy-modal-header">
+              <div>
+                <div className="strategy-modal-title">Choose AI Strategy</div>
+                <div className="strategy-modal-sub">Select an optimization goal for budget allocation</div>
+              </div>
+              <button className="strategy-close" onClick={()=>setStrategyOpen(false)}>✕</button>
+            </div>
+            <div className="strategy-cards-grid">
+              {Object.keys(STRATEGIES).map(s => {
+                const m = STRATEGY_META[s];
+                const active = strategy === s;
+                return (
+                  <div key={s}
+                    className={`strategy-option-card ${active ? "active" : ""}`}
+                    style={{ "--s-color": m.color, "--s-gradient": m.gradient }}
+                    onClick={()=>{ setStrategy(s); setStrategyOpen(false); }}>
+                    {/* Top glow strip */}
+                    <div className="soc-glow-strip" style={{ background: m.gradient }}/>
+                    {/* Icon + name */}
+                    <div className="soc-icon">{m.icon}</div>
+                    <div className="soc-name">{s}</div>
+                    <div className="soc-tagline">{m.tagline}</div>
+                    <div className="soc-desc">{m.desc}</div>
+                    {/* Weight bars */}
+                    <div className="soc-bars">
+                      {m.bars.map(b=>(
+                        <div key={b.label} className="soc-bar-row">
+                          <div className="soc-bar-label">{b.label}</div>
+                          <div className="soc-bar-track">
+                            <div className="soc-bar-fill" style={{ width:`${b.pct}%`, background:b.color }}/>
+                          </div>
+                          <div className="soc-bar-pct" style={{ color:b.color }}>{b.pct}%</div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Tags */}
+                    <div className="soc-tags">
+                      {m.tags.map(t=>(
+                        <span key={t} className="soc-tag" style={{ borderColor: m.color+"55", color: active?m.color:"var(--text-muted)" }}>{t}</span>
+                      ))}
+                    </div>
+                    {active && <div className="soc-check">✓ Active</div>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="content-area animate-fade-in" style={{ animationDelay: "0.4s" }}>
         {/* OPTIMIZER */}
