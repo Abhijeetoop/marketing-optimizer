@@ -9,8 +9,6 @@ const CHANNEL_COLORS = {
   "SMS": "#22c55e", "Influencer": "#f97316", "Affiliate": "#8b5cf6", "Organic Social": "#10b981",
 };
 
-// Removed STRATEGIES and STRATEGY_META as per request.
-
 
 function fmt(n) {
   if (!n || isNaN(n)) return "₹0";
