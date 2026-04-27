@@ -109,9 +109,7 @@ export default function App() {
   const [allData, setAllData] = useState([]);
   const [insights, setInsights] = useState(null);
   const [totalBudget, setTotalBudget] = useState(5000000);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiReport, setAiReport] = useState("");
-  const [customQuery, setCustomQuery] = useState("");
+
   const [allocation, setAllocation] = useState(() => {
     const base = {};
     CHANNELS.forEach((c,i) => { base[c] = i < 2 ? 14 : 9; });
@@ -261,9 +259,9 @@ export default function App() {
         </div>
         {/* Desktop tabs */}
         <div className="tabs-container desktop-tabs">
-          {["optimizer","analysis","trends", "ai"].map(tab=>(
+          {["optimizer","analysis","trends"].map(tab=>(
             <button key={tab} className={`tab-button ${activeTab===tab ? "active" : ""}`} onClick={()=>setActiveTab(tab)}>
-              {tab === 'ai' ? '✨ AI Insights' : tab}
+              {tab.charAt(0).toUpperCase()+tab.slice(1)}
             </button>
           ))}
         </div>
@@ -283,10 +281,10 @@ export default function App() {
       {/* Mobile tab drawer */}
       {menuOpen && (
         <div className="mobile-menu">
-          {["optimizer","analysis","trends", "ai"].map(tab=>(
+          {["optimizer","analysis","trends"].map(tab=>(
             <button key={tab} className={`mobile-tab-btn ${activeTab===tab?"active":""}`}
               onClick={()=>{ setActiveTab(tab); setMenuOpen(false); }}>
-              {tab === 'ai' ? '✨ AI Insights' : tab.charAt(0).toUpperCase()+tab.slice(1)}
+              {tab.charAt(0).toUpperCase()+tab.slice(1)}
             </button>
           ))}
         </div>
@@ -573,239 +571,10 @@ export default function App() {
           </div>
         )}
 
-        {/* AI INSIGHTS */}
-        {activeTab==="ai" && (
-          <div className="animate-fade-in">
-            <div className="glass-card glass-card-glow" style={{ minHeight: "500px", display: "flex", flexDirection: "column" }}>
-              <div className="card-header">
-                <div>
-                  <div className="card-title font-mono">Gemini AI Engine</div>
-                  <div className="card-subtitle">Deep Marketing Mix Analysis</div>
-                </div>
-              </div>
 
-              {!aiReport && !isAiLoading && (
-                  <div style={{ marginBottom: "30px", animation: "fadeIn 0.5s ease" }}>
-                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "12px", textTransform: "uppercase", letterSpacing: "1.5px", fontWeight: "600" }} className="font-mono">
-                      Custom Analysis Focus
-                    </div>
-                    
-                    {/* Quick Suggestions */}
-                    <div style={{ display: "flex", gap: "10px", marginBottom: "16px", flexWrap: "wrap" }}>
-                      {[
-                        { label: "Growth Strategy", icon: "📈", query: "Focus on scaling top performers while maintaining 3.5x+ ROAS." },
-                        { label: "Efficiency Audit", icon: "🛡️", query: "Identify the bottom 20% of spend and suggest where to cut." },
-                        { label: "Weekend Timing", icon: "🗓️", query: "Analyze day-of-week patterns and suggest a scheduling strategy." },
-                        { label: "Risk Assessment", icon: "⚠️", query: "Detect signs of saturation or diminishing returns in high-spend channels." }
-                      ].map(item => (
-                        <button 
-                          key={item.label}
-                          onClick={() => setCustomQuery(item.query)}
-                          style={{ 
-                            padding: "6px 12px", 
-                            borderRadius: "20px", 
-                            background: "rgba(255,255,255,0.05)", 
-                            border: "1px solid var(--border-color)", 
-                            color: "var(--text-muted)", 
-                            fontSize: "12px",
-                            cursor: "pointer",
-                            transition: "all 0.2s"
-                          }}
-                          onMouseEnter={(e) => { e.target.style.background = "rgba(255,255,255,0.1)"; e.target.style.color = "var(--text-main)"; }}
-                          onMouseLeave={(e) => { e.target.style.background = "rgba(255,255,255,0.05)"; e.target.style.color = "var(--text-muted)"; }}
-                        >
-                          {item.icon} {item.label}
-                        </button>
-                      ))}
-                    </div>
 
-                    <textarea 
-                      value={customQuery}
-                      onChange={(e) => setCustomQuery(e.target.value)}
-                      placeholder="e.g. How can I increase revenue by 20% without changing the budget?"
-                      style={{ 
-                        width: "100%", 
-                        background: "rgba(255,255,255,0.02)", 
-                        border: "1px solid var(--border-color)", 
-                        borderRadius: "16px", 
-                        padding: "20px", 
-                        color: "var(--text-main)", 
-                        fontFamily: "var(--font-sans)",
-                        fontSize: "15px",
-                        resize: "none",
-                        minHeight: "100px",
-                        outline: "none",
-                        transition: "all 0.3s",
-                        boxShadow: "inset 0 2px 4px rgba(0,0,0,0.2)"
-                      }}
-                      onFocus={(e) => e.target.style.borderColor = "var(--text-accent)"}
-                      onBlur={(e) => e.target.style.borderColor = "var(--border-color)"}
-                    />
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "20px" }}>
-                      <div style={{ fontSize: "12px", color: "var(--text-muted)" }} className="font-mono">
-                        Powered by Gemini 1.5 Flash
-                      </div>
-                      <button className="btn btn-primary" style={{ padding: "12px 32px", fontSize: "15px" }} onClick={async () => {
-                        setIsAiLoading(true);
-                        
-                        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-                        const hasRealKey = apiKey && apiKey !== "YOUR_GEMINI_API_KEY" && apiKey.length > 10;
 
-                        if (hasRealKey) {
-                          try {
-                            const prompt = `You are a high-level Marketing Strategist & Data Scientist. Analyze the provided portfolio data and generate a "MARKETING EFFICIENCY AUDIT" for a CMO.
-                            
-                            CONTEXT:
-                            - Monthly Budget: ₹${totalBudget.toLocaleString()}
-                            - Current State: ${projRev.toFixed(0)} Revenue (${projRoas.toFixed(2)}x ROAS)
-                            - Ideal State (Max Possible): ${optRev.toFixed(0)} Revenue (${(optRev/totalBudget).toFixed(2)}x ROAS)
-                            - Data Scale: ${allData.length} daily records across 3 years.
-                            
-                            CHANNEL PERFORMANCE:
-                            ${JSON.stringify(channelStats.map(c => ({ 
-                                name: c.channel, 
-                                roas: c.totalRoas.toFixed(2), 
-                                cpa: c.cpa.toFixed(0), 
-                                cac: c.cac.toFixed(0),
-                                diminishing: c.diminishing, 
-                                best_day: c.bestDay 
-                              })))}
-                            
-                            USER'S CURRENT MIX: ${JSON.stringify(allocation)}
-                            MATHEMATICAL OPTIMAL MIX: ${JSON.stringify(optimalAlloc)}
-                            
-                            USER FOCUS: "${customQuery || "General performance optimization"}"
-                            
-                            REQUIRED STRUCTURE (Markdown):
-                            ### 📊 Strategic Executive Summary
-                            (2-3 sentences on the "Revenue Gap" and the primary efficiency lever.)
-                            
-                            ### 🔍 Core Channel Insights
-                            (Provide 3 bullet points. Focus on: 1. The 'Engine' (top performer), 2. The 'Leak' (low ROI), 3. The 'Scale Potential' (where to put next ₹100k).)
-                            
-                            ### 🗓️ Temporal Optimization
-                            (Analyze the day-of-week data to suggest a specific bidding schedule change.)
-                            
-                            ### 🚀 Tactical Reallocation Plan (Phased)
-                            - **Phase 1 (Immediate - Next 7 Days)**: Specific ₹ shifts.
-                            - **Phase 2 (Scaling - Next 30 Days)**: Targeted ROAS goals.
-                            
-                            TONE: Sharp, authoritative, and data-obsessed. No fluff. Use bolding for key numbers.`;
 
-                            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-                            });
-
-                            if (!response.ok) throw new Error("API Connection Failed");
-                            
-                            const data = await response.json();
-                            if (data.candidates && data.candidates[0].content) {
-                              setAiReport(data.candidates[0].content.parts[0].text);
-                              setIsAiLoading(false);
-                              return;
-                            }
-                          } catch (err) {
-                            console.error("Gemini Error:", err);
-                          }
-                        }
-
-                        // Heuristic Fallback
-                        setTimeout(() => {
-                          const top = sortedByScore[0];
-                          const worst = sortedByScore[sortedByScore.length - 1];
-                          const efficiency = (projRoas).toFixed(2);
-                          const revenueGap = optRev - projRev;
-                          
-                          setAiReport(`${!hasRealKey ? "> [!NOTE]\n> Heuristic Analysis Mode enabled. Add Gemini API Key for deep Generative AI insights.\n\n" : ""}### 📊 Strategic Executive Summary
-Your current portfolio is operating at **${efficiency}x ROAS**. Our analysis identifies a **₹${revenueGap.toLocaleString()}** efficiency gap between your current allocation and the mathematical frontier.
-
-### 🔍 Core Channel Insights
-- **The Engine**: **${top.channel}** is delivering a peak **${top.totalRoas.toFixed(2)}x ROAS**. It is currently under-scaled.
-- **The Leak**: **${worst.channel}** is showing **${worst.diminishing ? "saturation" : "inefficiency"}** with a CPA of **${fmt(worst.cpa)}**. 
-
-### 🗓️ Temporal Optimization
-**${top.channel}** shows significantly higher conversion velocity on **${top.bestDay}s**. Shifting 15% of mid-week budget to this window will lift blended ROAS.
-
-### 🚀 Tactical Reallocation Plan
-- **Phase 1**: Shift ₹${(totalBudget * 0.1).toLocaleString()} from ${worst.channel} to ${top.channel}.
-- **Phase 2**: Audit creative for ${worst.channel} or pivot budget to ${sortedByScore[1].channel}.`);
-                          setIsAiLoading(false);
-                        }, 2000);
-                      }}>
-                        ✨ Run AI Audit
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {isAiLoading ? (
-                  <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 0" }}>
-                    <div className="ai-thinking-loader">
-                      <div className="thinking-orbit"></div>
-                      <div className="thinking-core"></div>
-                    </div>
-                    <div className="loader-title text-gradient" style={{ fontSize: "22px", marginTop: "32px", marginBottom: "8px" }}>Analyzing Portfolio...</div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
-                      {[
-                        "Correlating spend across 1,095 days...",
-                        "Calculating marginal ROAS curves...",
-                        "Detecting diminishing returns patterns...",
-                        "Simulating optimal reallocations..."
-                      ].map((txt, i) => (
-                        <div key={i} className="font-mono animate-fade-in" style={{ fontSize: "11px", color: "var(--text-muted)", animationDelay: `${i*0.5}s`, opacity: 0.5 }}>
-                          {txt}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : aiReport ? (
-                  <div className="ai-report-content animate-fade-in" style={{ lineHeight: "1.8", color: "var(--text-main)", fontSize: "15px" }}>
-                    <div style={{ 
-                      whiteSpace: "pre-wrap", 
-                      background: "rgba(255,255,255,0.015)", 
-                      padding: "40px", 
-                      borderRadius: "24px", 
-                      border: "1px solid var(--border-color)",
-                      boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
-                      backdropFilter: "blur(10px)"
-                    }}>
-                      {aiReport.split('\n').map((line, i) => {
-                        const trimmed = line.trim();
-                        if (trimmed.startsWith('###')) return <h3 key={i} style={{ color: "var(--text-accent)", marginTop: i === 0 ? 0 : "32px", marginBottom: "16px", fontSize: "20px", fontWeight: "700", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "12px" }}>{trimmed.replace('### ', '')}</h3>;
-                        
-                        // Handle bold numbers/text
-                        const parts = line.split(/(\*\*.*?\*\*)/g).map((part, pi) => {
-                          if (part.startsWith('**') && part.endsWith('**')) {
-                            return <strong key={pi} style={{ color: "var(--text-accent)", fontWeight: "700" }}>{part.replace(/\*\*/g, '')}</strong>;
-                          }
-                          return part;
-                        });
-
-                        if (trimmed.startsWith('- ')) return <li key={i} style={{ marginLeft: "20px", marginBottom: "10px", color: "var(--text-main)" }}>{parts.map(p => (typeof p === 'string' ? p.replace('- ', '') : p))}</li>;
-                        if (trimmed.startsWith('> ')) return <div key={i} style={{ margin: "20px 0", padding: "16px", background: "rgba(245,158,11,0.05)", borderLeft: "4px solid #f59e0b", borderRadius: "8px", color: "var(--text-muted)", fontSize: "13px" }}>{line.replace('> ', '').replace('[!NOTE]', '')}</div>;
-                        
-                        return <p key={i} style={{ marginBottom: "16px", color: "rgba(255,255,255,0.8)" }}>{parts}</p>;
-                      })}
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
-                      <button className="btn" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-muted)", borderRadius: "12px" }} onClick={() => setAiReport("")}>
-                        New Analysis
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", textAlign: "center" }}>
-                  <div style={{ fontSize: "48px", marginBottom: "20px" }}>🤖</div>
-                  <div style={{ fontSize: "20px", fontWeight: "600", color: "var(--text-main)", marginBottom: "10px" }}>AI Marketing Intelligence</div>
-                  <p style={{ maxWidth: "400px" }}>Click the button above to run a comprehensive AI audit on your current marketing performance and receive actionable growth recommendations.</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </main>
 
       <footer className="app-footer">
