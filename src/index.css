@@ -1142,3 +1142,73 @@ input[type=range]:focus {
   }
 }
 
+/* ── AI Thinking Loader ────────────────────────────────── */
+.ai-thinking-loader {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thinking-orbit {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(59, 130, 246, 0.1);
+  border-top: 2px solid var(--text-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.thinking-orbit::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  border: 2px solid rgba(245, 158, 11, 0.1);
+  border-top: 2px solid #f59e0b;
+  border-radius: 50%;
+  animation: spin 2s linear infinite reverse;
+}
+
+.thinking-core {
+  width: 20px;
+  height: 20px;
+  background: var(--text-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 20px var(--text-accent);
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 10px var(--text-accent); }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 30px var(--text-accent); }
+}
+
+.ai-report-content h3 {
+  letter-spacing: -0.5px;
+}
+
+.ai-report-content li {
+  position: relative;
+  padding-left: 5px;
+}
+
+.ai-report-content li::marker {
+  color: var(--text-accent);
+}
+
+.ai-report-content p {
+  opacity: 0.9;
+  line-height: 1.7;
+}
+
