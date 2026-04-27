@@ -263,7 +263,7 @@ export default function App() {
         <div className="tabs-container desktop-tabs">
           {["optimizer","analysis","trends", "ai"].map(tab=>(
             <button key={tab} className={`tab-button ${activeTab===tab ? "active" : ""}`} onClick={()=>setActiveTab(tab)}>
-              {tab === 'ai' ? '✨ AI Audit' : tab}
+              {tab === 'ai' ? '✨ AI Insights' : tab}
             </button>
           ))}
         </div>
@@ -286,7 +286,7 @@ export default function App() {
           {["optimizer","analysis","trends", "ai"].map(tab=>(
             <button key={tab} className={`mobile-tab-btn ${activeTab===tab?"active":""}`}
               onClick={()=>{ setActiveTab(tab); setMenuOpen(false); }}>
-              {tab === 'ai' ? '✨ AI Audit' : tab.charAt(0).toUpperCase()+tab.slice(1)}
+              {tab === 'ai' ? '✨ AI Insights' : tab.charAt(0).toUpperCase()+tab.slice(1)}
             </button>
           ))}
         </div>
@@ -573,13 +573,13 @@ export default function App() {
           </div>
         )}
 
-        {/* AI AUDIT */}
+        {/* AI INSIGHTS */}
         {activeTab==="ai" && (
           <div className="animate-fade-in">
             <div className="glass-card glass-card-glow" style={{ minHeight: "500px", display: "flex", flexDirection: "column" }}>
               <div className="card-header">
                 <div>
-                  <div className="card-title font-mono">AI Audit</div>
+                  <div className="card-title font-mono">Gemini AI Engine</div>
                   <div className="card-subtitle">Deep Marketing Mix Analysis</div>
                 </div>
               </div>
@@ -799,7 +799,7 @@ Your current portfolio is operating at **${efficiency}x ROAS**. Our analysis ide
 
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", textAlign: "center" }}>
                   <div style={{ fontSize: "48px", marginBottom: "20px" }}>🤖</div>
-                  <div style={{ fontSize: "20px", fontWeight: "600", color: "var(--text-main)", marginBottom: "10px" }}>AI Audit</div>
+                  <div style={{ fontSize: "20px", fontWeight: "600", color: "var(--text-main)", marginBottom: "10px" }}>AI Marketing Intelligence</div>
                   <p style={{ maxWidth: "400px" }}>Click the button above to run a comprehensive AI audit on your current marketing performance and receive actionable growth recommendations.</p>
                 </div>
               )}
